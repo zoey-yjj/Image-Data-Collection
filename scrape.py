@@ -44,3 +44,18 @@ with open(filename, 'w') as f:
     for voc in data:
         writer.writerow([voc])
 
+# the final classes are rain, cloud, sun, fog, rainbow, snow
+# each class has subclasses used for image collected, eg, use the words in each class to collect images from Flickr
+
+data = {
+    'rain': ['lightning', 'thunder', 
+             'thunderstorm', 'downpour', 
+             'storm', 'flood', ], 
+    'cloud': ['cloud', 'cloudy',],
+    'sun': ['sun', 'sunny',],
+    'fog': ['fog', 'mist', 'smog', 
+            'sleet', 'dew'],
+    'rainbow': ['rainbow',],
+    'snow': ['snow', 'icicle', 'snowfall', 
+             'hail', 'frost', 'blizzard',],
+}
