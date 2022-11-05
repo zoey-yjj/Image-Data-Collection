@@ -13,6 +13,11 @@ import requests
 import time
 from tqdm import tqdm
 from flickrapi import FlickrAPI
+import ipywidgets as widgets
+from glob import glob
+import numpy as np
+from matplotlib import pyplot as plt
+import cv2
 
 # please fill in your own key and secret for FlickrAPI
 key = ''
@@ -114,3 +119,28 @@ save_path = './Flickr_scrape/'
 for category in CATEGORIES:
     url_path = f'{save_path}/{category}_urls.csv'
     fetch_files_with_link(url_path)
+
+"""
+1.4 Visualize Collected Image 
+"""
+
+def plot_samples(category):
+    max_count = 10
+    paths = sorted(glob(f'./Flickr_scrape/{category}/*.*'))
+    # paths = np.random.choice(paths, max_count, replace=False)
+    plt.figure(figsize=(12,12))
+    for i in range(max_count):
+        image = cv2.imread(paths[i])
+        image = cv2.resize(image, (512,512), interpolation=cv2.INTER_LINEAR)
+        plt.subplot(1, max_count, i+1)
+        plt.title(category)
+        plt.imshow(image)
+        plt.axis('off')
+    plt.tight_layout()
+    plt.show()
+
+
+all_categories = newdata
+for category in all_categories:
+    plot_samples(category)
+
