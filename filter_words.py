@@ -144,3 +144,44 @@ all_categories = newdata
 for category in all_categories:
     plot_samples(category)
 
+
+"""
+From the sample images collected above, we can see that some words have high 
+errors, which could be due to the fact that some words have other meanings 
+which are not relevent to weather, for example shower, pressure, etc. Some 
+words are very hard to express in weather image, for example temperature.
+
+There are also other reasons such as users post images with animals, persons, 
+and even bands, which happens to have names match the word of weather, and some 
+posts are related to their feelings of the weather.
+
+Therefore, the words containing high errors are excluded from the final data 
+collection.
+"""
+
+# based checking, add the following words in excluded list
+words_exclude = ['words', 'weather', 'rain', 'temperature', 'pressure', 'overcast', 'shower', 'sunrise', 'dry', 'tornado', 'sunset', 'humidity',
+                 'cold', 'heat', 'wind', 'breeze', 'humid', 'blustery', 'drought', 'tropical', 'temperate', 'moisture', 'drizzle', 'warm',
+                 'climate', 'muggy', 'gale', 'atmosphere', 'isobar', 'condensation', 'forecast', 'freeze', 'barometric', 'gust', 'whirlwind',
+                 'hurricane', 'cyclone', 'air', 'balmy', 'avalanche', 'ozone', 'outlook', 'sky', 'surge', 'monsoon', 'permafrost.']
+
+final_words = [i for i in newdata if i not in words_exclude]
+
+"""
+The final words amount to 20+, which is still a lot for a model to learn. 
+Based on the meaning of words, and the images, I have classied them into 6 more 
+general classes.
+"""
+
+data = {
+    'rain': ['lightning', 'thunder', 
+             'thunderstorm', 'downpour', 
+             'storm', 'flood', ], 
+    'cloud': ['cloud', 'cloudy',],
+    'sun': ['sun', 'sunny',],
+    'fog': ['fog', 'mist', 'smog', 
+            'sleet', 'dew'],
+    'rainbow': ['rainbow',],
+    'snow': ['snow', 'icicle', 'snowfall', 
+             'hail', 'frost', 'blizzard',],
+}
