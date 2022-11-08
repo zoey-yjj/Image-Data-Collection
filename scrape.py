@@ -59,3 +59,62 @@ data = {
     'snow': ['snow', 'icicle', 'snowfall', 
              'hail', 'frost', 'blizzard',],
 }
+
+"""
+1.3 Scrape images from Flickr
+Full dataset collected amount to 24,000 images. Here I have presented the 
+functions for collection and images saved in the dataset for amount of 10 for 
+each class as demo. To collect more images, please adjust the amount of urls 
+scraped for image collection.
+
+The total dataset I have collect is amount 24,000, so that each class has 4,000 
+images. To make sure each has same total amount, each subclass amount is equal to 
+4000 / len(class_list). In this way, within each class, the subclasses have equal 
+amount of images.
+
+Images collected for each class is saved in their own folder. The path, imageID 
+and label are also collected and saved in csv file for training.
+"""
+
+def fetch_image_link(query, amount):
+    flickr = FlickrAPI(key, secret)         #initialize python flickr api
+    photos = flickr.walk(text=query,
+                        tag_mode='all',
+                        extras='url_c',     #specify meta data to be fetched
+                        sort='relevance')   #sort search result based on relevance (high to low by default)
+    
+    max_count = amount                      #let's just simply fetch 5 images for illustration
+    urls = []
+    count = 0
+
+    for photo in photos:
+        if count >= max_count:
+            break
+        count = count + 1
+        try:
+            url = photo.get('url_c')
+            urls.append(url)
+        except:
+            print("Url for image number {} could not be fetched".format(count))
+    return urls
+
+
+# here is a demo to scrap 15 images and save to folder
+# scraping 15 because some urls fails to download, need to scrap a more in case
+amt_collect = 15
+for label, QURIES in data.items():
+    l = len(QURIES)
+    amount_temp = int(amt_collect / l)
+    amount_list = [amount_temp, ] * (l - 1)
+    amount_list.append(amt_collect - sum(amount_list)) # for 10 images, the last sub class has more images than others, 
+                                                        # but when we collect 4000 total amount for each class, the difference is immaterial
+    for query, amount in zip(QURIES, amount_list):
+        urls = fetch_image_link(query, amount)
+        if len(urls) > amount - 1:
+            urls = pd.Series(urls)
+            save_path = './Flickr_scrape/'
+            if not os.path.exists(save_path):
+                os.makedirs(save_path)
+            category_path = f'{save_path}/{label}_urls.csv'
+            urls.to_csv(category_path, mode='a', header=False, index=False)
+
