@@ -118,3 +118,38 @@ for label, QURIES in data.items():
             category_path = f'{save_path}/{label}_urls.csv'
             urls.to_csv(category_path, mode='a', header=False, index=False)
 
+
+def fetch_files_with_link(url_path):
+    with open(url_path, newline="") as csvfile:
+        urls_df = pd.read_csv(url_path, delimiter=',', index_col=False, header=None, names=["ImageID"])
+        urls = urls_df.iloc[:, 0].to_dict().values()
+    
+    path = []
+    id = []
+    SAVE_PATH = os.path.join(url_path.replace('_urls.csv', ''))
+    if not os.path.isdir(SAVE_PATH):
+        os.mkdir(SAVE_PATH)                           #define image storage path
+
+    for idx, url in tqdm(enumerate(urls), total=len(urls)):
+        try:
+            resp = requests.get(url, stream=True)     #request file using url
+            url = url.split("/")[-1]
+            path_to_write = os.path.join(SAVE_PATH, url)
+            path.append(path_to_write)
+            id.append(url)
+            outfile = open(path_to_write, 'wb')
+            outfile.write(resp.content)               #save file content
+            outfile.close()
+        except:
+            print("Failed to download url number {}".format(idx)) 
+    print(f"Done with {url_path} download, images are saved in {SAVE_PATH}")
+    return pd.DataFrame(list(zip(path, id)), columns =['path', 'ImageID'])
+
+
+print("Start downloading images...")
+
+CATEGORIES = data.keys()   #specify search query
+save_path = './Flickr_scrape/'
+for category in CATEGORIES:
+    url_path = f'{save_path}/{category}_urls.csv'
+    path_df = fetch_files_with_link(url_path)
