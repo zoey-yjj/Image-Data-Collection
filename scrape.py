@@ -16,6 +16,12 @@ import requests
 import time
 from tqdm import tqdm
 from flickrapi import FlickrAPI
+import ipywidgets as widgets
+from glob import glob
+import numpy as np
+from matplotlib import pyplot as plt
+import cv2
+
 
 key = ''
 secret = ''
@@ -43,6 +49,34 @@ with open(filename, 'w') as f:
     writer.writerow(fields)
     for voc in data:
         writer.writerow([voc])
+
+"""
+1.2 Checking and filter words
+
+Based on the words collected, I have collected 10 images for each word and 
+displayed for checking. I have noticed that images for certain words contains 
+a lot errors. This is due to the fact that some words have other meanings which 
+are not relevent to weather, for example shower, pressure, etc. Some words are 
+very hard to express in weather image, for example temperature.
+
+There are also other reasons such as users would post images with animals, 
+persons, and even bands, which happens to have names match the word of weather, 
+and some posts are related to their feelings of the weather.
+
+Therefore, the words containing high errors are excluded from the final data collection.
+
+Detailed working is saved in seperate notebook named "filter_words.py", because 
+the print out of all words are very long.
+
+To filter out the irrelevant and high error words, I have manually browse through 
+the images, save all the excluded words in a list, and excluded them from the final 
+collection of images.
+
+After filter, there are stil more than 20 words. Most of words have similar images 
+and can be classified to a broader weather class. Therefore, after further 
+classification, the words are included in 6 classes, which are used as the classes 
+for our model.
+"""
 
 # the final classes are rain, cloud, sun, fog, rainbow, snow
 # each class has subclasses used for image collected, eg, use the words in each class to collect images from Flickr
@@ -153,3 +187,25 @@ save_path = './Flickr_scrape/'
 for category in CATEGORIES:
     url_path = f'{save_path}/{category}_urls.csv'
     path_df = fetch_files_with_link(url_path)
+
+"""
+1.4 Visualize Collected Image 
+"""
+
+def plot_samples(category):
+    paths = sorted(glob(f'./Flickr_scrape/{category}/*.*'))
+    paths = np.random.choice(paths, 10, replace=False)
+    plt.figure(figsize=(12,12))
+    for i in range(10):
+        image = cv2.imread(paths[i])[...,[2,1,0]]
+        image = cv2.resize(image, (512,512), interpolation=cv2.INTER_LINEAR)
+        plt.subplot(1, 10, i+1)
+        plt.title(category)
+        plt.imshow(image)
+        plt.axis('off')
+    plt.tight_layout()
+    plt.show()
+
+
+for category in CATEGORIES:
+    plot_samples(category)
